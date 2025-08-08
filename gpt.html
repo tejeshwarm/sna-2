@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Twitter and the Projection of Political Personalities in India — Visual Report</title>
+  <meta name="description" content=" 'Twitter and the Projection of Political Personalities in India'" />
+  <style>
+    /* ---------- Reset & base ---------- */
+    :root{
+      --bg1:#0f1724;
+      --bg2:#09203f;
+      --card:#ffffff;
+      --muted:#b8c6d6;
+      --accent1:#ff6b6b;
+      --accent2:#6be3ff;
+      --accent3:#8d6bff;
+      --glass: rgba(255,255,255,0.06);
+      --glass-2: rgba(255,255,255,0.04);
+      --glass-3: rgba(255,255,255,0.02);
+      --maxw:1100px;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(141,107,255,0.12), transparent),
+                  radial-gradient(1000px 500px at 90% 90%, rgba(107,227,255,0.06), transparent),
+                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:#e9f1fb;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.55;
+      padding:32px;
+    }
+
+    /* ---------- decorative floating blobs ---------- */
+    .blob{
+      position:fixed;
+      border-radius:50%;
+      filter:blur(36px) saturate(120%);
+      opacity:0.16;
+      z-index:0;
+      pointer-events:none;
+      transform:translate3d(0,0,0);
+      animation: floaty 12s ease-in-out infinite;
+    }
+    .b1{width:420px;height:420px;left:-100px;top:-60px;background:linear-gradient(135deg,var(--accent3),#ff9a9a);animation-duration:18s}
+    .b2{width:320px;height:320px;right:-80px;bottom:-40px;background:linear-gradient(135deg,var(--accent2),#90f7ec);animation-duration:14s}
+    @keyframes floaty{
+      0%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-24px) scale(1.03)}
+      100%{transform:translateY(0) scale(1)}
+    }
+
+    /* ---------- container ---------- */
+    .wrap{
+      max-width:var(--maxw);
+      margin:0 auto;
+      position:relative;
+      z-index:2;
+    }
+
+    header{
+      display:flex;
+      gap:18px;
+      align-items:center;
+      margin-bottom:20px;
+    }
+    .logo{
+      background:linear-gradient(135deg,var(--accent1),var(--accent3));
+      width:84px;height:84px;border-radius:16px;
+      display:grid;place-items:center;font-weight:700;font-size:20px;
+      color:white;box-shadow:0 10px 30px rgba(15,20,36,0.5);
+      transform:rotate(-6deg);
+    }
+    .title{
+      flex:1;
+    }
+    .title h1{
+      margin:0;font-size:22px;letter-spacing:0.2px;
+      background:linear-gradient(90deg,#fff, #dbeeff);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .title p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* ---------- nav pills ---------- */
+    nav{
+      display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;
+    }
+    .pill{
+      background:var(--glass);
+      padding:8px 12px;border-radius:999px;font-size:13px;color:var(--muted);
+      cursor:pointer;border:1px solid rgba(255,255,255,0.04);
+      transition:all .22s ease;
+    }
+    .pill:hover{transform:translateY(-4px);color:white}
+    .pill.active{background:linear-gradient(90deg,var(--accent1),var(--accent3));color:white;border:none;box-shadow:0 6px 22px rgba(141,107,255,0.18)}
+
+    /* ---------- content layout ---------- */
+    main{
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:26px;
+      align-items:start;
+      margin-top:22px;
+    }
+
+    /* left column cards */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border-radius: var(--radius);
+      padding:20px;
+      box-shadow: 0 6px 30px rgba(8,10,20,0.55);
+      border:1px solid rgba(255,255,255,0.04);
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+    .section-title{
+      display:flex;align-items:center;gap:12px;margin-bottom:12px;
+    }
+    .section-title h2{margin:0;font-size:18px}
+    .meta{font-size:13px;color:var(--muted)}
+
+    article p{color: #e6f1ff;margin:10px 0;}
+    article ul{margin:10px 18px;color:var(--muted)}
+    article li{margin:6px 0}
+
+    /* fancy blockquote */
+    blockquote{
+      margin:14px 0;padding:14px 16px;border-left:4px solid rgba(107,227,255,0.18);
+      background:linear-gradient(90deg, rgba(107,227,255,0.02), transparent);
+      color: #e9fbff;border-radius:10px;
+    }
+
+    /* right column sticky panel */
+    aside{
+      position:sticky;top:32px;
+      align-self:start;
+    }
+    .toc{padding:18px}
+    .toc h3{margin:0 0 8px 0}
+    .toc a{display:block;padding:8px 10px;border-radius:8px;color:var(--muted);text-decoration:none;margin:6px 0}
+    .toc a:hover{background:var(--glass-2);color:#fff}
+
+    /* progress reading bar */
+    #progress{
+      height:6px;background:linear-gradient(90deg,var(--accent2),var(--accent3));
+      width:0;border-radius:6px;transition:width .15s linear;
+    }
+    .progress-wrap{background:var(--glass-3);border-radius:6px;overflow:hidden;margin:12px 0}
+
+    /* accordion for subsections */
+    .accordion{margin-top:12px}
+    .acc-head{
+      display:flex;justify-content:space-between;align-items:center;padding:12px;background:transparent;border-radius:10px;cursor:pointer;border:1px solid rgba(255,255,255,0.03)
+    }
+    .acc-head h4{margin:0;font-size:14px}
+    .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease;padding:0 12px}
+    .acc-body.open{padding:12px 12px 18px 12px}
+
+    /* visual badges */
+    .badge{
+      display:inline-block;padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px;background:linear-gradient(90deg,var(--accent2),var(--accent3));color:#061226;margin-right:8px;
+    }
+
+    /* footer */
+    footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px;padding:20px}
+
+    /* responsive */
+    @media (max-width:980px){
+      main{grid-template-columns:1fr; padding-bottom:60px}
+      aside{position:relative;top:0}
+    }
+
+    /* ---------- micro-animations ---------- */
+    .fade-in{opacity:0;transform:translateY(12px);animation:fadeIn .6s forwards}
+    .fade-in.delay-1{animation-delay:.08s}
+    .fade-in.delay-2{animation-delay:.16s}
+    @keyframes fadeIn{to{opacity:1;transform:none}}
+
+    /* highlight effect for code-like areas */
+    .callout{
+      margin:12px 0;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px dashed rgba(255,255,255,0.03);
+      color:var(--muted)
+    }
+
+    /* nice title typing */
+    .typing{display:inline-block;overflow:hidden;white-space:nowrap;border-right:3px solid rgba(255,255,255,0.12);animation:typing 2.6s steps(40,end),blink .8s infinite;}
+    @keyframes typing{from{width:0} to{width:100%}}
+    @keyframes blink{50%{border-color:transparent}}
+
+    /* small decorative svg icons */
+    .icon{width:18px;height:18px;opacity:0.9;vertical-align:middle;margin-right:8px}
+  </style>
+</head>
+<body>
+
+  <!-- decorative blobs -->
+  <div class="blob b1" aria-hidden="true"></div>
+  <div class="blob b2" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="fade-in">
+      <div class="logo">TP</div>
+      <div class="title">
+        <h1 class="typing">Twitter and the Projection of Political Personalities in India</h1>
+       
+        <nav style="margin-top:10px">
+          <span class="pill active" data-target="#intro">Introduction</span>
+          <span class="pill" data-target="#data">Data & Methods</span>
+          <span class="pill" data-target="#analysis">Analysis</span>
+          <span class="pill" data-target="#case">Chowkidar Case</span>
+          <span class="pill" data-target="#conclusion">Conclusion</span>
+          <span class="pill" data-target="#future">Future</span>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- LEFT: main article -->
+      <div>
+        <!-- 1. Introduction -->
+        <section id="intro" class="card fade-in delay-1" tabindex="0" aria-labelledby="intro-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7l-10 5v9l10-5 10 5v-9l-10-5z" fill="currentColor" /></svg>
+            <div>
+              <h2 id="intro-heading">1. Introduction</h2>
+              <div class="meta">Overview of the study and central claim</div>
+            </div>
+          </div>
+          <article>
+            <p><strong>The paper investigates how political personalities are projected on Twitter in India, with a focus on the 2019 general election year.</strong> By conducting a year-long analysis of trending political hashtags, the study reveals that online political discourse in India is heavily centred around personalities, particularly Prime Minister Narendra Modi, rather than non-personal themes. It further shows that hashtags serve as discursive tools, framing leaders in ways that allow users to project subjective interpretations, creating a mediated form of political distortion in digital spaces.</p>
+          </article>
+        </section>
+
+        <!-- 2. Research Context -->
+        <section id="context" class="card fade-in delay-2" tabindex="0" aria-labelledby="context-heading" style="margin-top:18px">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 5h18v14H3z" fill="currentColor"/></svg>
+            <div>
+              <h2 id="context-heading">2. Research Context</h2>
+              <div class="meta">Why this matters — social media & Indian politics</div>
+            </div>
+          </div>
+          <article>
+            <p>Twitter has emerged as a significant political communication tool in India since the 2014 general elections. Previous studies have documented:</p>
+            <ul>
+              <li>How fringe politicians gain visibility through social media.</li>
+              <li>The role of influencers and automation in shaping narratives.</li>
+              <li>The prevalence of polarising content and political branding.</li>
+            </ul>
+            <p>The authors argue that beyond disinformation or tangible political events, <strong>discursive framing</strong> — where political figures are associated with imaginative characteristics — is another strategic method to influence perceptions.</p>
+          </article>
+        </section>
+
+        <!-- 3. Research Questions -->
+        <section id="questions" class="card fade-in" style="margin-top:18px" aria-labelledby="questions-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm1.07-7.75l-.9.92C13.45 11.9 13 12.5 13 14h-2v-.5c0-1 .45-1.9 1.17-2.58l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" fill="currentColor"/></svg>
+            <div>
+              <h2 id="questions-heading">3. Research Questions</h2>
+              <div class="meta">The paper focuses on three primary questions</div>
+            </div>
+          </div>
+          <article>
+            <ol>
+              <li><strong>What share do political personalities occupy within digital politics in India?</strong></li>
+              <li><strong>How are political figures projected within digital politics?</strong></li>
+              <li><strong>How do these projections complicate our understanding of digital politics?</strong></li>
+            </ol>
+          </article>
+        </section>
+
+        <!-- 4. Data Collection Process -->
+        <section id="data" class="card fade-in" style="margin-top:18px" aria-labelledby="data-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM6 12h12M12 6v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2 id="data-heading">4. Data Collection Process</h2>
+              <div class="meta">A five-step methodology used by the authors</div>
+            </div>
+          </div>
+
+          <article>
+            <p>The research follows a five-step methodology:</p>
+
+            <h3 style="margin-top:10px">4.1 Gathering Hashtags</h3>
+            <div class="callout">
+              <strong>Source:</strong> Twitter’s trending list for India.<br>
+              <strong>Timeframe:</strong> 1 January 2019 to 31 December 2019.<br>
+              <strong>Collected:</strong> Top five hashtags per day, based on their longest trending duration.<br>
+              <strong>Total hashtags:</strong> 1815, of which 55 were non-English and excluded.<br>
+              <strong>Final dataset:</strong> 1760 hashtags.
+            </div>
+
+            <h3>4.2 Thematic Classification</h3>
+            <p>Using Marchetti &amp; Ceccobelli’s (2016) classification, hashtags were coded into categories:</p>
+            <ul>
+              <li>Entertainment</li>
+              <li>Pointless Babble</li>
+              <li>News Story</li>
+              <li>Sports</li>
+              <li>Domestic Politics</li>
+              <li>International Politics</li>
+              <li>Technology</li>
+              <li>Geolocation</li>
+              <li>Religion</li>
+              <li>Recurring Events</li>
+            </ul>
+            <p>Only one category was assigned per hashtag, determined by contextual meaning.</p>
+
+            <h3>4.3 Domestic Politics Sub-Categorisation</h3>
+            <p>From 1760 hashtags, 586 related to Domestic Politics. These were further coded into:</p>
+            <ul>
+              <li>BJP</li>
+              <li>Advantaging BJP</li>
+              <li>Disadvantaging BJP</li>
+              <li>Opposition</li>
+              <li>Advantaging Opposition</li>
+              <li>Disadvantaging Opposition</li>
+              <li>Neutral</li>
+              <li>Social Justice &amp; Empowerment</li>
+              <li>Crimes</li>
+              <li>Religious Politics</li>
+              <li>Elections</li>
+            </ul>
+
+            <h3>4.4 Collecting Tweet-Level Data</h3>
+            <p>For hashtags under Domestic Politics:</p>
+            <ul>
+              <li>Tweets were collected using Twitter’s Academic API.</li>
+              <li>Timeframe: ±12 hours around the trending period.</li>
+              <li>Data points: Username, engagement metrics, timestamps, tweet IDs, URLs.</li>
+              <li>Counted: Number of tweets per user per hashtag.</li>
+            </ul>
+
+            <h3>4.5 Personality-Focused Grouping</h3>
+            <p>Subthemes were further grouped into personality vs. non-personality categories:</p>
+            <ul>
+              <li>Narendra Modi</li>
+              <li>Rahul Gandhi</li>
+              <li>Gandhi Family</li>
+              <li>Congress Leadership</li>
+              <li>BJP Leadership</li>
+              <li>Hindutva Leadership</li>
+              <li>Regional Personalities</li>
+              <li>Other Personalities</li>
+              <li>Non-Personalities</li>
+            </ul>
+            <p><em>Coding was done independently by both authors, with 95% agreement.</em></p>
+          </article>
+        </section>
+
+        <!-- 5. Empirical Analysis -->
+        <section id="analysis" class="card fade-in" style="margin-top:18px" aria-labelledby="analysis-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3v18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V8h10v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2 id="analysis-heading">5. Empirical Analysis</h2>
+              <div class="meta">Key patterns observed across 2019</div>
+            </div>
+          </div>
+
+          <article>
+            <h4 style="margin-top:6px">5.1 Overall Trends</h4>
+            <p><strong>Domestic Politics</strong> dominated Twitter in 2019, accounting for <strong>33% of hashtags</strong> and <strong>34% of trending time.</strong> Entertainment, Sports, and Pointless Babble were consistent non-political trends. International Politics and Technology appeared sporadically.</p>
+
+            <h4 style="margin-top:12px">5.2 Subtheme Observations</h4>
+            <p>Hashtags advantaging <strong>BJP</strong> far outnumbered all other categories, especially before the April–May 2019 elections. Hashtags disadvantaging the opposition ranked second. Opposition-supportive hashtags were rare — only <strong>15.6%</strong> of domestic politics hashtags.</p>
+
+            <blockquote>
+              <strong>Interpretation:</strong> The pattern shows a disproportionate presence of pro-dispensation trends, particularly in the election build-up, indicating strategic mediation and amplification.
+            </blockquote>
+          </article>
+        </section>
+
+        <!-- 6. Personality-Centric Trends -->
+        <section id="personality" class="card fade-in" style="margin-top:18px" aria-labelledby="personality-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM3 20a9 9 0 0118 0" fill="currentColor" /></svg>
+            <div>
+              <h2 id="personality-heading">6. Personality-Centric Trends</h2>
+              <div class="meta">Who dominates the discourse and how they are framed</div>
+            </div>
+          </div>
+
+          <article>
+            <h4>6.1 Modi’s Dominance</h4>
+            <p>Modi was central in <strong>61.5%</strong> of hashtags advantaging BJP. Even in hashtags disadvantaging BJP, Modi remained a key figure (<strong>35.7% share</strong>).</p>
+            <p>Example: <strong>#MainBhiChowkidar</strong> campaign — Modi adopted the term "chowkidar" (watchman) as a metaphor, inviting citizens to identify as protectors of the nation. This transformed into a mass social media movement, with BJP leaders adding “Chowkidar” to their Twitter handles and supporters updating their profile pictures.</p>
+
+            <h4 style="margin-top:12px">6.2 Rahul Gandhi’s Projection</h4>
+            <p>Rahul Gandhi featured prominently in both supportive and critical hashtags.</p>
+            <ul>
+              <li>Supportive hashtags: <em>#RahulForBehtarBharat</em>, <em>#IStandWithRahulGandhi</em>.</li>
+              <li>Critical hashtags: <em>#PappuDiwas</em>, <em>#RahulGandhiPagalHai</em> — ridicule as a delegitimising tool.</li>
+            </ul>
+
+            <h4 style="margin-top:12px">6.3 Regional and Other Personalities</h4>
+            <p>Opposition discourse often focused on Gandhi family members, regional leaders, and Congress leadership. Regional figures were particularly relevant in state-level politics and election periods.</p>
+          </article>
+        </section>
+
+        <!-- 7. Case Study: The Chowkidar Campaign -->
+        <section id="case" class="card fade-in" style="margin-top:18px" aria-labelledby="case-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zm0 7l-10 5v9l10-5 10 5v-9l-10-5z" fill="currentColor" /></svg>
+            <div>
+              <h2 id="case-heading">7. Case Study: The Chowkidar Campaign</h2>
+              <div class="meta">How a discursive frame became a movement</div>
+            </div>
+          </div>
+
+          <article>
+            <h4>Origin</h4>
+            <p>Response to opposition’s “Chowkidar Chor Hai” slogan linked to Rafale deal allegations.</p>
+
+            <h4 style="margin-top:8px">Tactics</h4>
+            <ul>
+              <li>Personal rebranding (adding 'Chowkidar' to handles).</li>
+              <li>Pledges and profile picture frames to create visual unity.</li>
+              <li>Automated personalised replies from Modi’s account to supporters.</li>
+            </ul>
+
+            <h4 style="margin-top:8px">Impact</h4>
+            <p>Created a shared identity between leader and supporters, fostering emotional attachment and mobilisation. It demonstrates how a discursive frame can be strategically pushed to become a mass-identifying symbol.</p>
+          </article>
+        </section>
+
+        <!-- 8. Discursive Framing -->
+        <section id="framing" class="card fade-in" style="margin-top:18px" aria-labelledby="framing-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2 id="framing-heading">8. Discursive Framing</h2>
+              <div class="meta">How leaders are associated with open-ended traits</div>
+            </div>
+          </div>
+
+          <article>
+            <p>Modi was often associated with abstract traits: <strong>#56InchRocks</strong> (strength), <strong>#DeshKiShaanModi</strong> (pride of the nation), <strong>#NewIndia</strong> (development vision). These traits are open-ended, allowing users to interpret meaning based on personal worldviews. Similarly, opposition figures were framed through ridicule or outsider status (<strong>#GoBackModi</strong>, <strong>#GoBackRahul</strong>).</p>
+
+            <blockquote>
+              <strong>Crucial point:</strong> These are not strictly factual statements; they are symbolic anchors that users project personal meanings onto, producing a subjective collective narrative.
+            </blockquote>
+          </article>
+        </section>
+
+        <!-- 9. Interpretation of Trends -->
+        <section id="interpretation" class="card fade-in" style="margin-top:18px" aria-labelledby="interpretation-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3v18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V8h10v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <h2 id="interpretation-heading">9. Interpretation of Trends</h2>
+              <div class="meta">What the patterns imply for digital politics</div>
+            </div>
+          </div>
+
+          <article>
+            <p>Twitter discourse in India is personality-driven. Leader-centric politics reinforces presidential-style campaigning, diminishing party identity. Hashtags serve as tools for both political mobilisation and narrative distortion.</p>
+          </article>
+        </section>
+
+        <!-- 10. Conclusion -->
+        <section id="conclusion" class="card fade-in" style="margin-top:18px" aria-labelledby="conclusion-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l3 7H9l3-7zm0 20l-3-7h6l-3 7z" fill="currentColor"/></svg>
+            <div>
+              <h2 id="conclusion-heading">10. Conclusion</h2>
+              <div class="meta">Summary of core findings</div>
+            </div>
+          </div>
+
+          <article>
+            <ul>
+              <li>Personalities dominate Indian political Twitter discourse, especially Modi.</li>
+              <li>Discursive framing — attaching imaginative, symbolic traits — is a deliberate strategy.</li>
+              <li>This method of mediated discourse is a distinct form of political distortion, different from direct disinformation.</li>
+              <li>Twitter is actively used to mould political perceptions, particularly in election years.</li>
+            </ul>
+          </article>
+        </section>
+
+        <!-- 11. Future Research Directions -->
+        <section id="future" class="card fade-in" style="margin-top:18px" aria-labelledby="future-heading">
+          <div class="section-title">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM8 12l2 2 4-4" fill="currentColor"/></svg>
+            <div>
+              <h2 id="future-heading">11. Future Research Directions</h2>
+              <div class="meta">Where to go next</div>
+            </div>
+          </div>
+
+          <article>
+            <ul>
+              <li>Investigating discursive framing in non-election years.</li>
+              <li>Studying the interplay between automation, coordination, and personality-based campaigns.</li>
+              <li>Comparing personality-driven discourse across different countries with similar political cultures.</li>
+            </ul>
+          </article>
+        </section>
+
+        <footer class="card" style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <div style="min-width:200px">
+              <div style="font-weight:700">Source:</div>
+              <div style="color:var(--muted);font-size:13px">Content derived exactly from the paper "Twitter and the projection of political personalities in India".</div>
+            </div>
+            <div style="text-align:right;color:var(--muted);font-size:13px">
+              
+            </div>
+          </div>
+        </footer>
+
+      </div>
+
+      <!-- RIGHT: aside / TOC -->
+      <aside>
+        <div class="card toc fade-in">
+          <h3 style="margin-top:0">Contents</h3>
+          <div class="progress-wrap" aria-hidden="true"><div id="progress"></div></div>
+
+          <a href="#intro" data-target="#intro">1. Introduction</a>
+          <a href="#context" data-target="#context">2. Research Context</a>
+          <a href="#questions" data-target="#questions">3. Research Questions</a>
+          <a href="#data" data-target="#data">4. Data Collection Process</a>
+          <a href="#analysis" data-target="#analysis">5. Empirical Analysis</a>
+          <a href="#personality" data-target="#personality">6. Personality Trends</a>
+          <a href="#case" data-target="#case">7. Chowkidar Campaign</a>
+          <a href="#framing" data-target="#framing">8. Discursive Framing</a>
+          <a href="#interpretation" data-target="#interpretation">9. Interpretation</a>
+          <a href="#conclusion" data-target="#conclusion">10. Conclusion</a>
+          <a href="#future" data-target="#future">11. Future Research</a>
+
+         
+
+         
+
+            
+            
+          </div>
+        </div>
+
+       
+
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    /* ---------- Smooth anchor navigation & pill active states ---------- */
+    document.querySelectorAll('.pill').forEach(p=>{
+      p.addEventListener('click',()=>{
+        document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+        const tgt = document.querySelector(p.dataset.target);
+        if(tgt) tgt.scrollIntoView({behavior:'smooth', block:'start'});
+      })
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click',function(e){
+        e.preventDefault();
+        const t = document.querySelector(this.getAttribute('href'));
+        if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      })
+    });
+
+    /* ---------- reading progress ---------- */
+    const progress = document.getElementById('progress');
+    function updateProgress(){
+      const h = document.documentElement;
+      const st = h.scrollTop || document.body.scrollTop;
+      const sh = h.scrollHeight - h.clientHeight;
+      const pct = (st / sh) * 100;
+      progress.style.width = pct + '%';
+    }
+    document.addEventListener('scroll', updateProgress, {passive:true});
+    updateProgress();
+
+    /* ---------- simple accordion ---------- */
+    document.querySelectorAll('.acc-head').forEach(head=>{
+      head.addEventListener('click',()=>{
+        const body = head.nextElementSibling;
+        const open = body.classList.toggle('open');
+        if(open){
+          body.style.maxHeight = body.scrollHeight + "px";
+        } else {
+          body.style.maxHeight = null;
+        }
+      })
+    });
+
+    /* ---------- entrance animations for fade-in items ---------- */
+    window.addEventListener('load',()=>{
+      document.querySelectorAll('.fade-in').forEach((el,i)=>{
+        el.style.opacity = 0;
+        setTimeout(()=>{ el.style.opacity = 1; el.style.transform = 'translateY(0)'; el.style.transition = 'all .6s cubic-bezier(.22,.9,.34,1)'; }, 120 * i);
+      });
+    });
+
+    /* ---------- keyboard accessible skip: focus outlines ---------- */
+    (function(){ let usingKeyboard=false;
+      window.addEventListener('keydown',e=>{ if(e.key==='Tab') usingKeyboard=true;});
+      window.addEventListener('mousedown',()=>usingKeyboard=false);
+      document.addEventListener('focusin',e=>{
+        if(usingKeyboard){
+          e.target.style.outline = '3px solid rgba(107,227,255,0.18)';
+          e.target.style.outlineOffset = '4px';
+        }
+      });
+      document.addEventListener('focusout',e=>{
+        e.target.style.outline = '';
+      });
+    })();
+
+    /* ---------- make internal anchor pills reflect nearest section on scroll ---------- */
+    const sections = Array.from(document.querySelectorAll('main section'));
+    const pills = Array.from(document.querySelectorAll('.pill'));
+    function onScrollActive(){
+      let idx = sections.length - 1;
+      for(let i=0;i<sections.length;i++){
+        const r = sections[i].getBoundingClientRect();
+        if(r.top > 120){ idx = Math.max(0,i-1); break; }
+      }
+      pills.forEach(p=>p.classList.remove('active'));
+      const id = sections[idx] && sections[idx].id;
+      const act = pills.find(p=>p.dataset.target === '#'+id);
+      if(act) act.classList.add('active');
+    }
+    window.addEventListener('scroll', onScrollActive, {passive:true});
+    onScrollActive();
+
+  </script>
+</body>
+</html>
